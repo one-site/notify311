@@ -3,14 +3,16 @@ Notify311.view.Modal = (function () {
     var modalEl,
         messageContent = '',
         messageDetails = '',
+        messageHeading = '',
         modalClass = '',
         isWarning = false;
 
     return {
 
-        error: function (message, details) {
+        error: function (message, details, heading) {
             messageContent = message || 'An unexpected error has occurred';
             messageDetails = details || '';
+            messageHeading = heading === undefined ? 'Sever Error' : heading;
             isWarning = false;
             modalClass = 'i.red.warning.circle.icon';
             messageClass = '.ui.error.tiny.message';
@@ -60,7 +62,7 @@ Notify311.view.Modal = (function () {
             if (messageDetails) messageVnode.push(m(messageClass, detailsVnode));
 
             return m('.ui.modal.notify311-modal', [
-                m('.ui.icon.top.attached.header', m(modalClass), isWarning ? '' : 'Server Error'),
+                m('.ui.icon.top.attached.header', m(modalClass), isWarning ? '' : messageHeading),
                 m('i.close.icon'),
                 m('.content', [
                     m('.description', messageVnode)

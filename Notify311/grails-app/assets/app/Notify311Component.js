@@ -71,7 +71,7 @@ Notify311.view.Notify311Component = function Notify311Component(vnode) {
             return m('.ui.container.topcontainer', [
 
                 m('form.ui.tiny.form', {style: {width: '100%', margin: '1rem 0rem'}}, [
-                    m('.ui.basic.segment', [
+                    m('.ui.basic.segment.notify311-segment', [
                         m('h4.ui top attached header', [
                             'Location',
                             m('a.ui label', {
@@ -121,111 +121,173 @@ Notify311.view.Notify311Component = function Notify311Component(vnode) {
                         ])
                     ]),
 
-                    m('.ui.basic.segment', [
+                    m(Notify311.view.Notify311Description),
+                    m(Notify311.view.Notify311Photos, {images: images}),
 
-                        m('h4.ui top attached header', ['Photos', m('a.ui label', {
-                            style: {float: 'right'},
-                            onclick: function (e) {
-                                console.log('click', e)
-                                $('input:file', $(e.target).parents()).click();
-                            }
-                        }, [m('i.ui large icon camera', {style: {marginRight: 0}})])]),
+                    m('.ui.basic.segment.notify311-segment', [
+                        m('.ui primary submit button', {
+                            onclick: (e) => {
+                                e.preventDefault()
 
-                        m('input[type=file][name=photos][multiple][style="display:none"]', {
-                            onchange: function (e) {
-                                if (!e.target.files.length) console.warn('Zero length files')
+                                let message,
+                                    formData = new FormData(document.querySelector('form')),
+                                    dataObject = Array.from(formData.keys()).reduce((data, key) => {
+                                        console.log(data, key)
+                                        data[key] = formData.get(key)
+                                        return data
+                                    }, {})
 
-                                _.forEach(e.target.files, (file) => {
-                                    let reader = new FileReader()
+                                console.log('dataObject', dataObject)
+                                if (!dataObject.address1) message = 'Please provide a location'
+                                if (!dataObject.description) message = 'Please provide a description'
+                                if (!dataObject.address1 && !dataObject.description) message = 'Please provide a location and description'
 
-                                    reader.addEventListener("load", function () {
-                                        console.log(file, reader)
-                                        images.push({file: file, reader: reader});
-                                        m.redraw();
-                                    }, false);
+                                if (message) {
+                                    Notify311.view.Modal.error(message, '', '')
+                                    return
+                                }
 
-                                    reader.readAsDataURL(file);
-
+                                images.forEach((file, i) => {
+                                    console.log(file)
+                                    formData.delete('photos')
+                                    formData.append('images', file.file)
                                 })
 
-                            }
-                        }),
-
-                        images && m('.ui attached segment', {style: {borderTopStyle: 'none'}},
-                            m('.ui grid',
-                                images.map(
-                                    (it, i) => {
-                                        return m('.crop', [
-                                            m('a.ui.top.right.attached.label', {
-                                                onclick: (e) => {
-                                                    e.preventDefault()
-                                                    console.log(i, e, it)
-                                                    images.splice(i, 1)
-                                                },
-                                                style: {
-                                                    borderRadius: 0,
-                                                    padding: '0.5em',
-                                                    zIndex: 1000
-                                                }
-                                            }, m('i.ui icon delete', { style: {marginLeft: 0} })),
-                                            m('img.ui.image[style=margin-top:0px !important]', {
-                                                style: {_marginTop: '0'},
-                                                src: it.reader.result
-                                            })
-
-                                        ])
+                                Rx.Observable.ajax({
+                                        method: "POST",
+                                        url: '/notify311',
+                                        body: formData,
+                                        progressSubscriber: (new Rx.Subject()).subscribe({
+                                            next: (it) => {
+                                                console.log('progressSubscriber', it)
+                                            },
+                                            error: (err) => console.log('progressSbscriber error', err),
+                                            complete: () => console.log('progressSubscriber compete')
+                                        })
                                     }
-                                )
-                            )
-                        )
-
-                    ]),
-
-                    m('.ui primary submit button', {
-                        onclick: (e) => {
-                            e.preventDefault()
-
-                            // Just user semantic-ui validation here.
-                            if (!($(vnode.dom).form('is valid'))) return;
-
-                            // Just use semantic-ui form values here.
-                            var formData = $(vnode.dom).form('get values')
-                            if (formData.id) {
-                                Notify311.view.Modal.warn('Sorry, update has not been implemented')
-                                return
+                                ).subscribe({
+                                    next: (it) => console.log('next', it),
+                                    error: (err) => console.log('error', err),
+                                    complete: () => console.log('compete')
+                                })
                             }
-
-                            vnode.attrs.pageScope.createUser(formData)
-                        }
-                    }, 'Save'),
-                    _.get(vnode.state, 'componentScope.selected') && m('.ui button', {
-                        onclick: (e) => {
-                            e.preventDefault()
-                            $(vnode.dom).form('clear')
-                            delete vnode.state.componentScope.selected
-                        }
-                    }, 'New'),
-                    _.get(vnode.state, 'componentScope.selected') && m('.ui red button', {
-                        onclick: (e) => {
-                            e.preventDefault()
-
-                            // Just user semantic-ui validation here.
-                            if (!($(vnode.dom).form('is valid'))) return;
-
-                            // Just use semantic-ui form values here.
-                            var formData = $(vnode.dom).form('get values')
-
-                            vnode.attrs.pageScope.deleteUser(formData)
-                        }
-                    }, 'Delete')
-
+                        }, 'Save')
+                    ])
                 ])
+
             ])
+
 
         }
 
     }
 }
+
+Notify311.view.Notify311Photos = function Notify311Photos(vnode) {
+
+    let images = null
+
+    return {
+        oninit: (vnode) => {
+            images = vnode.attrs.images
+        },
+
+        view: (vnode) => {
+
+            return m('.ui.basic.segment.notify311-segment', [
+
+                m('h4.ui top attached header', ['Photos', m('a.ui label', {
+                    style: {float: 'right'},
+                    onclick: function (e) {
+                        console.log('click', e)
+                        $('input:file', $(e.target).parents()).click();
+                    }
+                }, [m('i.ui large icon camera', {style: {marginRight: 0}})])]),
+
+                m('input[type=file][name=photos][multiple][style="display:none"]', {
+                    oncreate: (vnode) => {
+
+                    },
+
+                    onchange: function (e) {
+                        if (!e.target.files.length) console.warn('Zero length files')
+
+                        _.forEach(e.target.files, (file) => {
+                            let reader = new FileReader()
+
+                            reader.addEventListener("load", function () {
+                                console.log(file, reader)
+                                images.push({file: file, reader: reader});
+                                m.redraw();
+                            }, false);
+
+                            reader.readAsDataURL(file);
+
+                        })
+
+                    }
+                }),
+
+                images && m('.ui attached segment', {style: {borderTopStyle: 'none'}},
+                    m('.ui grid',
+                        images.map(
+                            (it, i) => {
+                                return m('.crop', [
+                                    m('a.ui.top.right.attached.label', {
+                                        onclick: (e) => {
+                                            e.preventDefault()
+                                            console.log(i, e, it)
+                                            images.splice(i, 1)
+                                        },
+                                        style: {
+                                            borderRadius: 0,
+                                            padding: '0.5em',
+                                            zIndex: 1000
+                                        }
+                                    }, m('i.ui icon delete', {style: {marginLeft: 0}})),
+                                    m('img.ui.image[style=margin-top:0px !important]', {
+                                        style: {_marginTop: '0'},
+                                        src: it.reader.result
+                                    })
+
+                                ])
+                            }
+                        )
+                    )
+                )
+
+            ])
+
+        }
+
+    }
+
+}
+
+Notify311.view.Notify311Description = function Notify311Description(vnode) {
+
+    return {
+
+        view: (vnode) => {
+            console.log('Notify311.view.Notify311Description', vnode)
+            return m('.ui.basic.segment.notify311-segment', [
+                m('h4.ui top attached header', 'Description'),
+                m('.ui attached segment', [
+                    m('.field', [
+                        m('textarea[name=description][placeholder=Provide details on issue] .ui notify311-description', {
+                            oninput: (e) => {
+                                console.log('oninput', e)
+                                $(e.target).outerHeight('2em').outerHeight(e.target.scrollHeight);
+                            }
+                        })
+                    ])
+                ])
+            ])
+        }
+
+    }
+}
+
 Notify311.view.Notify311CityStateZip = function Notify311CityStateZip(vnode) {
 
     let topLabel = (controller) => {
@@ -252,7 +314,6 @@ Notify311.view.Notify311CityStateZip = function Notify311CityStateZip(vnode) {
 
         view: (vnode) => {
 
-            console.log(vnode)
             let controller = vnode.attrs.controller,
                 showCityStateZip = _.get(controller, 'componentScope.showCityStateZip'),
                 cityStateZipVnode = _.get(controller.vnodeRefs, 'cityStateZipVnode'),

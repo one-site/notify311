@@ -3,7 +3,7 @@
 <html>
 <head>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, , user-scalable=no">
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/semantic.min.css"
@@ -23,9 +23,21 @@
         }
 
         .topcontainer {
-            height: 100%;
+            height: 100vh;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+        }
+
+        @media only screen and (max-width: 767px) {
+            .ui.container.topcontainer {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+        }
+
+        .ui.basic.segment.notify311-segment {
+            margin-top: 0;
+            margin-bottom: 0;
         }
 
         .crop img {
@@ -38,16 +50,13 @@
             transform: translateY(-50%); /* IE 10, Fx 16+, Op 12.1+ */
         }
     </style>
+
     <style>
         body {
             overflow: hidden;
-            height: 100%;
-            width: 100%;
         }
 
         .notify311-app-body {
-            height: 100%;
-            width: 100%;
             background-color: white !important;
             overflow: hidden;
         }
@@ -165,6 +174,19 @@
     .notify311-loading-mask.inactive {
         display: none;
     }
+
+    .ui.form textarea.notify311-description {
+        resize: none;
+        /*font-size: 13px;*/
+        height: 2em;
+        min-height: 2em;
+        box-sizing: border-box;
+        overflow: hidden;
+        border: none;
+        padding: 0;
+    }
+
+
 </style>
 
 <div class="notify311-loading-mask inactive"></div>
