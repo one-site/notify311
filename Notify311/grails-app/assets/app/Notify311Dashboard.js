@@ -6,7 +6,8 @@ Notify311.model.Notify311Dashboard = function Notify311Component(vnode) {
             return Rx.Observable.ajax({
                 method: "GET",
                 //url: "/notification/",
-                url: "/static/json/notifications.json",
+                //url: "/static/json/notifications.json",
+                url: "https://rawgit.com/one-site/notify311/master/Notify311/src/main/resources/public/json/notifications.json",
                 headers: {'Content-Type': 'application/json'}
             })
 
