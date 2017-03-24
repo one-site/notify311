@@ -14,7 +14,7 @@
       "state": "NJ"
     },
     "images": [
-      {"url": "/static/images/IMG_2700_original.jpg"}
+      {"url": "https://rawgit.com/one-site/notify311/master/Notify311/src/main/resources/public/images/IMG_2700_original.jpg"}
     ],
     "name": "Down Tree"
   },
