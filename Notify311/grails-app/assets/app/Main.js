@@ -44,7 +44,8 @@ Notify311 = (function () {
                         showNext: false
                     }
                 }),
-                '/notify311': Notify311.view.Notify311Component
+                '/notify311': Notify311.view.Notify311Component,
+                '/dashboard': Notify311.view.Notify311Dashboard
             });
         }
     }
