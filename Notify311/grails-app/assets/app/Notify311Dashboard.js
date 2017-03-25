@@ -96,10 +96,10 @@ Notify311.view.Notify311ViewDetails = function Notify311ViewDetails(vnode) {
     return {
         view: (vnode) => {
             return m('.ui.grid.container', [
-                m('.ui.eight.wide.column', {style: {height: '50%'}}, [
+                m('.ui.eight.wide.column', {style: {height: '50%', maxHeight: '400px'}}, [
                     m(Notify311.view.Notify311ViewImages, {key: parentScope.selectedItem, parentScope: parentScope})
                 ]),
-                m('.ui.eight.wide.column', {style: {height: '50%'}}, [
+                m('.ui.eight.wide.column', {style: {height: '50%', maxHeight: '400px'}}, [
                     m(Notify311.view.Notify311ViewMap, {key: parentScope.selectedItem, parentScope: parentScope})
                 ]),
                 m('.ui.sixteen.wide.column.segment', {style: {height: '50%'}}, [
